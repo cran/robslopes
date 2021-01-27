@@ -1,0 +1,14 @@
+c8d90defd05fa961f99725a0b5c09955 *DESCRIPTION
+3807f5e2a54aaa2715dba4ccbdc94c32 *NAMESPACE
+b55c940b0c5865f4ffabc8ceba647a0d *R/RcppExports.R
+79d64528cc028576cc33afafc6e1f369 *R/RepeatedMedian.R
+d00a445989706cd118d13dae38cca305 *R/TheilSen.R
+67646edd1118af01e1c95cf58318b3b4 *man/RepeatedMedian.Rd
+599e7661537e2be329fa64a7ecf42d51 *man/TheilSen.Rd
+ffe212ce2a6d71d49e5e5e00d0c834e1 *src/HelpFunctions.cpp
+704ce8cff43e0591e35765b2f4efcade *src/HelpFunctions.h
+558a0e7695e6d8f82d4f36a6f2800222 *src/Makevars
+4d7e2e5c6ed342353a0f628b67f8da8f *src/Makevars.win
+1a838970a4f219e4d155bca7e2b43ba2 *src/RcppExports.cpp
+b9e1096f7fd2a7e91340dea3612603b2 *src/rcpparma_Theil_Sen.cpp
+84373c05721da4cb350e7750258bc103 *src/rcpparma_repeated_median.cpp
