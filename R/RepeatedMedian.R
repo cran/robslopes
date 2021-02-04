@@ -9,8 +9,10 @@ RepeatedMedian <- function(x, y, alpha = NULL, beta = NULL, verbose = TRUE) {
   naY <- which(is.na(y))
   if (length(naX) > 0 | length(naY) > 0) {
     naInds <- sort(unique(c(naX,naY)))
-    warning(paste0("The data contains observations with NA values. The observations ",
-                   naInds, " were removed before computing the Theil-Sen estimator."))
+    if (verbose) {
+      warning(cat("The data contains observations with NA values. The observations ",
+                  naInds, " were removed before computing the Theil-Sen estimator."))
+    }
     x <- x[-naInds]
     y <- y[-naInds]
     n <- length(x)

@@ -89,10 +89,10 @@ arma::uvec countInversions_RM(arma::uvec y,  const arma::uvec lineToval)
 
 
 void merge2_RM(arma::uvec& y, int left, int middle, int right, arma::uvec& counts,
-           arma::mat& sampleInds, arma::uvec& indicator, const arma::vec& X,
-           const arma::vec& Y, const arma::uvec& valToline,
-           const std::unordered_map<int, std::pair<int, int>>& lineKey,
-           arma::uvec& IAcounter, double theta_lo, double theta_hi)
+               arma::mat& sampleInds, arma::uvec& indicator, const arma::vec& X,
+               const arma::vec& Y, const arma::uvec& valToline,
+               const std::unordered_map<int, std::pair<int, int>>& lineKey,
+               arma::uvec& IAcounter, double theta_lo, double theta_hi)
 {
   int i, j, k;
   const int n1 = middle - left + 1;
@@ -125,16 +125,23 @@ void merge2_RM(arma::uvec& y, int left, int middle, int right, arma::uvec& count
             double intersection;
             if (arma::is_finite(theta_lo) && arma::is_finite(theta_hi))
             {
-              // use more robust formula to compute the sampled intersection ordinate:
-              double delta_lo = (theta_lo * X(valToline(Right(jIndex))) -
-                                 Y(valToline(Right(jIndex)))) -
-                                 (theta_lo * X(valToline(Left(i))) -
-                                 Y(valToline(Left(i))));
-              double delta_hi = (theta_hi * X(valToline(Right(jIndex))) -
-                                 Y(valToline(Right(jIndex)))) -
-                                 (theta_hi * X(valToline(Left(i))) -
-                                 Y(valToline(Left(i))));
-              intersection = theta_lo + delta_lo / (delta_lo - delta_hi) * (theta_hi - theta_lo);
+              if (X(valToline(Right(jIndex))) == X(valToline(Left(i)))) 
+              {
+                intersection = arma::datum::inf;
+              }
+              else
+              {
+                // use more robust formula to compute the sampled intersection ordinate:
+                double delta_lo = (theta_lo * X(valToline(Right(jIndex))) -
+                                   Y(valToline(Right(jIndex)))) -
+                                   (theta_lo * X(valToline(Left(i))) -
+                                   Y(valToline(Left(i))));
+                double delta_hi = (theta_hi * X(valToline(Right(jIndex))) -
+                                   Y(valToline(Right(jIndex)))) -
+                                   (theta_hi * X(valToline(Left(i))) -
+                                   Y(valToline(Left(i))));
+                intersection = theta_lo + delta_lo / (delta_lo - delta_hi) * (theta_hi - theta_lo);
+              }
             }
             else
             { // with infinite bounds, use non-robust formula
@@ -257,10 +264,10 @@ void merge2_RM(arma::uvec& y, int left, int middle, int right, arma::uvec& count
 
 
 void mergeSort2_RM(arma::uvec& y, int left, int right, arma::uvec& counts,
-               arma::mat& sampleInds, arma::uvec& indicator, const arma::vec& X,
-               const arma::vec& Y, const arma::uvec& valToline,
-               const std::unordered_map<int, std::pair<int, int>>& lineKey,
-               arma::uvec& IAcounter, double theta_lo, double theta_hi)
+                   arma::mat& sampleInds, arma::uvec& indicator, const arma::vec& X,
+                   const arma::vec& Y, const arma::uvec& valToline,
+                   const std::unordered_map<int, std::pair<int, int>>& lineKey,
+                   arma::uvec& IAcounter, double theta_lo, double theta_hi)
 {
   // assumes y is an vector of distinct integers 1, 2, ... n without gaps
   // 
@@ -288,7 +295,7 @@ void sampleMedIA(arma::uvec y, arma::mat& sampleInds, const arma::vec& X,
   arma::uvec IAcounter(sampleInds.n_cols, arma::fill::zeros); 
   arma::uvec counts(n, arma::fill::zeros);
   mergeSort2_RM(y, 0, n - 1, counts, sampleInds, indicator, X, Y,
-             valToline, lineKey, IAcounter, theta_lo, theta_hi);
+                valToline, lineKey, IAcounter, theta_lo, theta_hi);
   
 }
 
@@ -308,8 +315,6 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
   
   // global constants
   const arma::uword n = X.n_elem;
-  // const arma::uword medind = std::ceil(n / 2.0); // index of median in sorted median slopes
-  // const arma::uvec medind2 = arma::conv_to<arma::uvec>::from(arma::ceil((n - nbdups) / 2.0)); // index of median in sorted slopes
   const int c = 20; // stop contraction iterations when arma::sum(LCRi.col(1)) <= c * n
   const double beta = 0.5;
   const arma::uword r = std::ceil(std::pow(n, beta)); // number of dual lines to sample
@@ -591,6 +596,6 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
   {
     Rcpp::Rcout << "Algorithm finished" << std::endl;
   }
-  return(result); // still have to add intercept
+  return(result); 
 }
 

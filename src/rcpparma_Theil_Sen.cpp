@@ -86,11 +86,11 @@ arma::uword countInversions(arma::uvec y)
 //////////////////////////////////
 
 void merge2_TS(arma::uvec& y,arma::uword left, arma::uword middle, arma::uword right,
-              arma::vec& sampleInds,
-              const arma::vec& X, const arma::vec& Y, arma::uword& invCount,
-              arma::uword& sampleInds_idx,
-              const arma::uvec& valToline,
-              double theta_lo, double theta_hi)
+               arma::vec& sampleInds,
+               const arma::vec& X, const arma::vec& Y, arma::uword& invCount,
+               arma::uword& sampleInds_idx,
+               const arma::uvec& valToline,
+               double theta_lo, double theta_hi)
 {
   // c is number of inversions
   arma::uword i, j, k;
@@ -119,16 +119,23 @@ void merge2_TS(arma::uvec& y,arma::uword left, arma::uword middle, arma::uword r
         double intersection;
         if (arma::is_finite(theta_lo) && arma::is_finite(theta_hi))
         {
-          // use more robust formula to compute the sampled intersection ordinate:
-          double delta_lo = (theta_lo * X(valToline(Right(j))) -
-                             Y(valToline(Right(j)))) -
-                             (theta_lo * X(valToline(Left(itemp))) -
-                             Y(valToline(Left(itemp))));
-          double delta_hi = (theta_hi * X(valToline(Right(j))) -
-                             Y(valToline(Right(j)))) -
-                             (theta_hi * X(valToline(Left(itemp))) -
-                             Y(valToline(Left(itemp))));
-          intersection = theta_lo + delta_lo / (delta_lo - delta_hi) * (theta_hi - theta_lo);
+          if (X(valToline(Right(j))) == X(valToline(Left(itemp)))) 
+          {
+            intersection = arma::datum::inf;
+          }
+          else
+          {
+            // use more robust formula to compute the sampled intersection ordinate:
+            double delta_lo = (theta_lo * X(valToline(Right(j))) -
+                               Y(valToline(Right(j)))) -
+                               (theta_lo * X(valToline(Left(itemp))) -
+                               Y(valToline(Left(itemp))));
+            double delta_hi = (theta_hi * X(valToline(Right(j))) -
+                               Y(valToline(Right(j)))) -
+                               (theta_hi * X(valToline(Left(itemp))) -
+                               Y(valToline(Left(itemp))));
+            intersection = theta_lo + delta_lo / (delta_lo - delta_hi) * (theta_hi - theta_lo);
+          }
         }
         else
         { // with infinite bounds, use non-robust formula
@@ -154,7 +161,6 @@ void merge2_TS(arma::uvec& y,arma::uword left, arma::uword middle, arma::uword r
   
   while (i < n1)
   {
-    // invCount(Left(i)) += j;
     y(k++) = Left(i++);
   }
   
@@ -167,9 +173,9 @@ void merge2_TS(arma::uvec& y,arma::uword left, arma::uword middle, arma::uword r
 
 
 void mergeSort2_TS(arma::uvec& y, arma::uword left, arma::uword right, arma::vec& sampleInds,
-                  const arma::vec& X, const arma::vec& Y, arma::uword& invCount,
-                  arma::uword& sampleInds_idx, const arma::uvec& valToline,
-                  double theta_lo, double theta_hi)
+                   const arma::vec& X, const arma::vec& Y, arma::uword& invCount,
+                   arma::uword& sampleInds_idx, const arma::uvec& valToline,
+                   double theta_lo, double theta_hi)
 {
   // assumes y is an vector of distinct integers 0, 1, ... n-1 without gaps
   // 
@@ -221,7 +227,6 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
   double theta_hi =  arma::datum::inf;
   double thetaP_lo, thetaP_hi = 0;
   arma::uword C = (arma::uword)(n * (n - 1) / 2) ; // number of ordinates in (theta_lo,theta_hi]
-  // const arma::uword medind = std::ceil((C - (arma::uword)nbdups) / 2.0) ; // index of median in sorted median slopes
   
   arma::uvec IOcounter(2); // used to check if C goes still goes down
   IOcounter(1) = C;
@@ -301,8 +306,8 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
     // went down over the last 2 iterations
     if ((double) IOcounter(0) / (double)  C < 1.1)
     {
-      // Rcpp::Rcout << "Warning: algorithm switched early" <<
-      //   " to brute-force enumeration" << std::endl;
+      Rcpp::Rcout << "Warning: algorithm switched early" <<
+        " to brute-force enumeration" << std::endl;
       break;
     }
     IOcounter(0) = IOcounter(1);
@@ -346,7 +351,6 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
   
   // determine TS intercept
   arma::vec residuals = Y - result(1) * X;
-  // arma::uword medind2 = std::ceil(n / 2.0);
   std::nth_element(residuals.begin(),
                    residuals.begin() + medind2 - 1,
                    residuals.end());
