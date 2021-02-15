@@ -7,39 +7,40 @@
 using namespace Rcpp;
 
 // rcpp_TheilSen
-arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose, const arma::uword medind, const arma::uword medind2);
-RcppExport SEXP _robslopes_rcpp_TheilSen(SEXP XSEXP, SEXP YSEXP, SEXP verboseSEXP, SEXP medindSEXP, SEXP medind2SEXP) {
+arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose, const arma::uword medind0, const arma::uword medind1);
+RcppExport SEXP _robslopes_rcpp_TheilSen(SEXP XSEXP, SEXP YSEXP, SEXP verboseSEXP, SEXP medind0SEXP, SEXP medind1SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::vec >::type X(XSEXP);
     Rcpp::traits::input_parameter< const arma::vec >::type Y(YSEXP);
     Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< const arma::uword >::type medind(medindSEXP);
-    Rcpp::traits::input_parameter< const arma::uword >::type medind2(medind2SEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_TheilSen(X, Y, verbose, medind, medind2));
+    Rcpp::traits::input_parameter< const arma::uword >::type medind0(medind0SEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type medind1(medind1SEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_TheilSen(X, Y, verbose, medind0, medind1));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_RepeatedMedian
-arma::vec rcpp_RepeatedMedian(const arma::vec X, const arma::vec Y, const bool verbose, const arma::uword medind, const arma::uvec medind2);
-RcppExport SEXP _robslopes_rcpp_RepeatedMedian(SEXP XSEXP, SEXP YSEXP, SEXP verboseSEXP, SEXP medindSEXP, SEXP medind2SEXP) {
+arma::vec rcpp_RepeatedMedian(const arma::vec X, const arma::vec Y, const bool verbose, const arma::uword medind0, const arma::uword medind1, const arma::uvec medind2);
+RcppExport SEXP _robslopes_rcpp_RepeatedMedian(SEXP XSEXP, SEXP YSEXP, SEXP verboseSEXP, SEXP medind0SEXP, SEXP medind1SEXP, SEXP medind2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::vec >::type X(XSEXP);
     Rcpp::traits::input_parameter< const arma::vec >::type Y(YSEXP);
     Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< const arma::uword >::type medind(medindSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type medind0(medind0SEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type medind1(medind1SEXP);
     Rcpp::traits::input_parameter< const arma::uvec >::type medind2(medind2SEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_RepeatedMedian(X, Y, verbose, medind, medind2));
+    rcpp_result_gen = Rcpp::wrap(rcpp_RepeatedMedian(X, Y, verbose, medind0, medind1, medind2));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_robslopes_rcpp_TheilSen", (DL_FUNC) &_robslopes_rcpp_TheilSen, 5},
-    {"_robslopes_rcpp_RepeatedMedian", (DL_FUNC) &_robslopes_rcpp_RepeatedMedian, 5},
+    {"_robslopes_rcpp_RepeatedMedian", (DL_FUNC) &_robslopes_rcpp_RepeatedMedian, 6},
     {NULL, NULL, 0}
 };
 

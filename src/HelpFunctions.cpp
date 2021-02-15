@@ -18,7 +18,7 @@ orderRank rank(arma::vec& v)
   result.orderVector = arma::regspace<arma::uvec>(0, n - 1);
   result.rankVector  = arma::uvec(n, arma::fill::zeros);
   
-  std::sort(result.orderVector.begin(), result.orderVector.end(), 
+  std::stable_sort(result.orderVector.begin(), result.orderVector.end(), 
             [&v](int i, int j) { return v(i) < v(j);});
   result.rankVector(result.orderVector) = arma::regspace<arma::uvec>(0, n - 1);
   return result;
@@ -37,7 +37,7 @@ orderRank rankwTiebreak(arma::vec& v, arma::vec& tieBreaker)
   result.orderVector = arma::regspace<arma::uvec>(0, n - 1);
   result.rankVector  = arma::uvec(n, arma::fill::zeros);
   
-  std::sort(result.orderVector.begin(), result.orderVector.end(), 
+  std::stable_sort(result.orderVector.begin(), result.orderVector.end(), 
             [&v](int i, int j) { return v(i) < v(j);});
   
   // dealing with ties

@@ -309,7 +309,8 @@ void sampleMedIA(arma::uvec y, arma::mat& sampleInds, const arma::vec& X,
 arma::vec rcpp_RepeatedMedian(const arma::vec X,
                               const arma::vec Y,
                               const bool verbose,
-                              const arma::uword medind,
+                              const arma::uword medind0,
+                              const arma::uword medind1,
                               const arma::uvec medind2) {
   // Computes repeated median slope and intercept
   
@@ -439,6 +440,8 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
     if (thetaP_lo == thetaP_hi)
     {
       termination = 1;
+      Rcpp::Rcout << "Contraction bounds form a singleton." <<
+        " Switching to brute-force enumeration" << std::endl;
       break;
     }
     
@@ -472,7 +475,7 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
     
     // # interval contraction
     
-    if (L.n_elem + inds_I1.n_elem >= medind)
+    if (L.n_elem + inds_I1.n_elem >= medind1)
     {
       theta_hi = thetaP_lo;
       // # L doesn't change here
@@ -485,7 +488,7 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
       LCRi.col(1) = count1;
       LCRi.col(2) = LCRi.col(2) + count2 + count3 + count4;
     }
-    else if (L.n_elem + inds_I1.n_elem + inds_I2.n_elem >= medind)
+    else if (L.n_elem + inds_I1.n_elem + inds_I2.n_elem >= medind1)
     { // most likely scenario
       theta_lo = thetaP_lo;
       theta_hi = thetaP_hi;
@@ -496,7 +499,7 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
       LCRi.col(1) = count2 + count3;
       LCRi.col(2) = LCRi.col(2) + count4;
     }
-    else if (L.n_elem + inds_I1.n_elem + inds_I2.n_elem + inds_I3.n_elem >= medind)
+    else if (L.n_elem + inds_I1.n_elem + inds_I2.n_elem + inds_I3.n_elem >= medind1)
     {
       termination = 2;
       break;
@@ -513,6 +516,7 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
       LCRi.col(0) = LCRi.col(0) + count1 + count2 + count3;
       LCRi.col(1) = count4;
     }
+    
     
     // check if number of intersection ordinates in the interval 
     // went down over the last 2 iterations
@@ -536,12 +540,12 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
   
   arma::vec result(2, arma::fill::zeros);
   
-  if (termination > 0)
+  if (termination > 1)
   { // thetaP_lo == thetaP_hi or thetaP_hi degeneracy
     if (verbose) 
     {
-      Rcpp::Rcout << "Interval contraction ended in degenarcy."<<
-        " No brute force computation needed." << std::endl;
+      Rcpp::Rcout << "Interval contraction ended in degeneracy."<<
+        " No brute-force computation needed." << std::endl;
     }
     result(1) = thetaP_hi;
   }
@@ -549,7 +553,7 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
   { // no special termination: brute force computation
     if (verbose) 
     {
-      Rcpp::Rcout << "Now starting brute force computation." << std::endl;
+      Rcpp::Rcout << "Now starting brute-force computation." << std::endl;
     }
     permutation = getInterPerm(X, Y, theta_lo, theta_hi, 0);
     arma::uword maxnbbIA = LCRi.col(1).max();
@@ -580,17 +584,17 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
       medians(colnumber) = candidatemedians(medind2(C(colnumber)) - LCRi(C(colnumber), 0) - 1);
     }
     std::nth_element(medians.begin(),
-                     medians.begin() +  (medind - L.n_elem - 1),
+                     medians.begin() +  (medind1 - L.n_elem - 1),
                      medians.end());
-    result(1) = medians(medind - L.n_elem - 1); // RM slope
+    result(1) = medians(medind1 - L.n_elem - 1); // RM slope
   }
   
   // determine RM intercept
   arma::vec residuals = Y - result(1) * X;
   std::nth_element(residuals.begin(),
-                   residuals.begin() + medind - 1,
+                   residuals.begin() + medind0 - 1,
                    residuals.end());
-  result(0) = residuals(medind - 1); // rm intercept
+  result(0) = residuals(medind0 - 1); // rm intercept
   
   if (verbose) 
   {

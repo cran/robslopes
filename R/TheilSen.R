@@ -19,20 +19,22 @@ TheilSen <- function(x, y, alpha = NULL, verbose = TRUE) {
   }
   
   # Count the number of duplicate values in the predictor variable
-  dupnb  <- rle(x)$lengths
-  nbdups <- sum(choose(dupnb[dupnb > 1], 2))
+  x.order     <- order(x)
+  xs          <- x[x.order]
+  dupnb       <- rle(xs)$lengths
+  nbdups      <- sum(choose(dupnb[dupnb > 1], 2))
   
   # Compute correct order statistics
+  medind0 <- floor((n + 1) / 2) # upper median (for intercept calculation)
   if (is.null(alpha)) {
-    medind  <- floor(((n * (n - 1) / 2) - nbdups + 1) / 2) # upper median
-    medind2 <- floor((n + 1) / 2) # upper median (for intercept calculation)
+    medind1  <- floor(((n * (n - 1) / 2) - nbdups + 1) / 2) # upper median
   } else {
-    medind  <- max(1, min(n, round((n * (n - 1) / 2  - nbdups) * alpha)))
-    medind2 <- max(1, min(n, round(n * alpha)))
+    medind1  <- max(1, min((n * (n - 1) / 2  - nbdups),
+                          round((n * (n - 1) / 2  - nbdups) * alpha)))
   }
   
   # Compute the Theil-Sen estimator
-  TS.out  <- rcpp_TheilSen(x, y, verbose, medind, medind2)
+  TS.out  <- rcpp_TheilSen(x, y, verbose, medind0, medind1)
   
   return(list(intercept = TS.out[1], slope = TS.out[2]))
 }

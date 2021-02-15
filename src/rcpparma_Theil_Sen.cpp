@@ -212,7 +212,7 @@ void sampleIA(arma::uvec y, arma::vec& sampleInds,
 
 // [[Rcpp::export]]
 arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose,
-                        const arma::uword medind, const arma::uword medind2) {
+                        const arma::uword medind0, const arma::uword medind1) {
   // Computes repeated median slope and intercept
   
   // global constants
@@ -252,11 +252,15 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
     inds = arma::floor(inds);
     inds(r) = C + 1; //sentinel value
     permutation = getInterPerm(X, Y, theta_lo, theta_hi, 0);
+    
     sampleIA(permutation.col(0), inds, X, Y, permutation.col(1), theta_lo, theta_hi);
     inds = arma::sort(inds);
-    arma::uword k = medind - L;
-    arma::uword k_lo = std::max(1.0, std::floor((double)k * (double)n / (double)C - t*std::sqrt(n) / 2.0)) - 1;
-    arma::uword k_hi = std::min(n + 0.0, std::ceil((double)k * (double)n / (double)C + t*std::sqrt(n) / 2.0)) - 1;
+    arma::uword k = medind1 - L;
+    
+    arma::uword k_lo = std::max(1.0, std::floor((double)k * (double)n /
+      (double)C - t*std::sqrt(n) / 2.0)) - 1;
+    arma::uword k_hi = std::min(n + 0.0, std::ceil((double)k * (double)n /
+      (double)C + t*std::sqrt(n) / 2.0)) - 1;
     
     thetaP_lo = inds(k_lo);
     thetaP_hi = inds(k_hi);
@@ -264,6 +268,8 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
     if (thetaP_lo == thetaP_hi)
     {
       termination = 1;
+      Rcpp::Rcout << "Contraction bounds form a singleton." <<
+        " Switching to brute-force enumeration" << std::endl;
       break;
     }
     
@@ -279,18 +285,18 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
     arma::uword count3 = arma::sum(permutation.col(3)) / 2; 
     arma::uword count4 = C - (count1 + count2 + count3);
     
-    if (L + count1 >= medind)
+    if (L + count1 >= medind1)
     {
       theta_hi = thetaP_lo;
       C = count1;
     }
-    else if (L + count1 + count2  >= medind) {
+    else if (L + count1 + count2  >= medind1) {
       theta_lo = thetaP_lo;
       theta_hi = thetaP_hi;
       L = L + count1;
       C = count2 + count3;
     }
-    else if (L + count1 + count2 + count3 >= medind)
+    else if (L + count1 + count2 + count3 >= medind1)
     {
       termination = 2;
       break;
@@ -301,6 +307,7 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
       L = L + count1 + count2 + count3;
       C = count4;
     }
+    
     
     // check if number of intersection ordinates in the interval 
     // went down over the last 2 iterations
@@ -323,12 +330,12 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
   
   arma::vec result(2, arma::fill::zeros);
   
-  if (termination > 0)
+  if (termination > 1)
   { // thetaP_lo == thetaP_hi or thetaP_hi degeneracy
     if (verbose) 
     {
-      Rcpp::Rcout << "Interval contraction ended in degenarcy."<<
-        " No brute force computation needed." << std::endl;
+      Rcpp::Rcout << "Interval contraction ended in degeneracy."<<
+        " No brute-force computation needed." << std::endl;
     }
     result(1) = thetaP_hi;
   }
@@ -336,7 +343,7 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
   { // no special termination: brute force computation
     if (verbose) 
     {
-      Rcpp::Rcout << "Now starting brute force computation." << std::endl;
+      Rcpp::Rcout << "Now starting brute-force computation." << std::endl;
     }
     
     // generate a sorted list of all remaining IAs.
@@ -346,16 +353,16 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
     permutation = getInterPerm(X, Y, theta_lo, theta_hi, 0);;
     sampleIA(permutation.col(0), inds, X, Y, permutation.col(1), theta_lo, theta_hi);
     inds = arma::sort(inds);
-    result(1) = inds(medind - L - 1);
+    result(1) = inds(medind1 - L - 1);
   }
   
   // determine TS intercept
   arma::vec residuals = Y - result(1) * X;
   std::nth_element(residuals.begin(),
-                   residuals.begin() + medind2 - 1,
+                   residuals.begin() + medind0 - 1,
                    residuals.end());
   
-  result(0) = residuals(medind2 - 1); // TS intercept
+  result(0) = residuals(medind0 - 1); // TS intercept
   
   if (verbose) 
   {

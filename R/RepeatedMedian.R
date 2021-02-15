@@ -36,6 +36,9 @@ RepeatedMedian <- function(x, y, alpha = NULL, beta = NULL, verbose = TRUE) {
   }
   
   # Compute correct order statistics
+  
+  medind0 <- floor((n + 1) / 2) # upper median(for intercept)
+  
   if (is.null(alpha)) {
     medind1 <- floor((n + 1) / 2) # upper median
   } else {
@@ -48,7 +51,7 @@ RepeatedMedian <- function(x, y, alpha = NULL, beta = NULL, verbose = TRUE) {
   }
   
   # Run the RM algorithm
-  RM.out  <- rcpp_RepeatedMedian(x, y, verbose, medind1, medind2)
+  RM.out  <- rcpp_RepeatedMedian(x, y, verbose, medind0, medind1, medind2)
   
   return(list(intercept = RM.out[1], slope = RM.out[2]))
 }
