@@ -8,7 +8,7 @@
 
 orderRank rank(arma::vec& v)
 {
-  // "unstable" rank vector: ties are "solved" at random
+  // "stable" rank vector: ties are "solved" by keeping original ordering
   // returns the ranks and order using 0-based indexing, i.e. in {0, 1, ... n-1}
   // result.orderVector contains order
   // result.rankVector contains ranks
@@ -38,7 +38,7 @@ orderRank rankwTiebreak(arma::vec& v, arma::vec& tieBreaker)
   result.rankVector  = arma::uvec(n, arma::fill::zeros);
   
   std::stable_sort(result.orderVector.begin(), result.orderVector.end(), 
-            [&v](int i, int j) { return v(i) < v(j);});
+            [&v](int i, int j) { return v(i) < v(j) ;});
   
   // dealing with ties
   for (arma::uword j, i = 0; i < n; i += j)
@@ -121,7 +121,7 @@ arma::umat getInterPerm(const arma::vec& X, const arma::vec& Y,
     OR_hi = rankwTiebreak(int_hi, TB_hi);
   }
   else
-  {
+  { //open == 1
     result = arma::umat(X.size(), 4);
     if (!arma::is_finite(theta_hi))
     { 
@@ -133,22 +133,51 @@ arma::umat getInterPerm(const arma::vec& X, const arma::vec& Y,
       int_hi = X * theta_hi - Y;
       TB_hi = -X;
     }
+    
     OR_hi = rankwTiebreak(int_hi, TB_hi); 
     
     int_hi = int_hi(OR_hi.orderVector); // sorted intersections with theta_hi
-    arma::uvec counts(int_hi.size(), arma::fill::zeros); 
+    TB_hi = TB_hi(OR_hi.orderVector); // sorted intersections with theta_hi
     
+    
+    arma::uvec counts(int_hi.size(), arma::fill::zeros); 
+    arma::ivec doubleDupsVec(int_hi.size(), arma::fill::zeros);
     for (arma::uword j, i = 0; i < int_hi.size(); i += j)
     {
       j = 1;
+      int doubleDups = 0;
       while (i + j < int_hi.size() && int_hi(i) == int_hi(i + j))
       {
+        // careful here: double duplicates (= x-and y-duplicates)
+        // are assumed to meet at infinity. However, they 
+        // cause equal values for both int_hi and the tie breaker.
+        // therefore, they are counted as duplicates meeting at 
+        // theta_hi. It also needs to work in a sequence like
+        // 11112 with tie breaker 11223 
+        // should we also check that theta_hi != Inf? 
+        // in that case this correction is probably not needed.
+        if (TB_hi(i + j - 1) == TB_hi(i + j)) { // make sure that (i,j) is not x-and y-duplicate
+          ++doubleDups;
+          
+        } else {
+          if (doubleDups > 0) {
+            doubleDupsVec.subvec(i+j-1 - doubleDups,i+j-1).fill(doubleDups);
+          }
+          doubleDups = 0;
+        }
         ++j; // count duplicates
       }
+      if (doubleDups > 0) {
+        doubleDupsVec.subvec(i+j-1 - doubleDups,i+j-1).fill(doubleDups);
+      }
       if(j > 1) {
-        counts.subvec(i, i + j - 1).fill(j - 1);// j-1 intersections for each of these lines
+        arma::ivec replacement(j);
+        replacement.fill(j-1);
+        replacement = replacement - doubleDupsVec.subvec(i, i + j - 1);
+        counts.subvec(i, i + j - 1) = arma::conv_to<arma::uvec>::from(replacement);
       }
     }
+    
     result.col(3) = counts(OR_hi.rankVector); // put the intersection counts in the right place
   }
   result.col(0) = OR_lo.rankVector(OR_hi.orderVector); // permutation 

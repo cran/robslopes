@@ -325,7 +325,8 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
   int termination = 0; 
   double theta_lo = - arma::datum::inf;
   double theta_hi =  arma::datum::inf;
-  double thetaP_lo, thetaP_hi;
+  double thetaP_lo = - arma::datum::inf;
+  double thetaP_hi =  arma::datum::inf;
   arma::uvec L;
   arma::uvec R;
   arma::uvec C = arma::regspace<arma::uvec>(0, n - 1);
@@ -459,6 +460,7 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
     arma::uvec count3 = permutation.col(3); 
     arma::uvec count4 = LCRi.col(1) - (count1 + count2 + count3);
     
+    
     // Part e  
     // find lines in C for which the median IA lies in I1, I2, I3 and I4.
     
@@ -477,6 +479,7 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
     
     if (L.n_elem + inds_I1.n_elem >= medind1)
     {
+      
       theta_hi = thetaP_lo;
       // # L doesn't change here
       R = arma::join_cols(arma::join_cols(arma::join_cols(R,
@@ -540,6 +543,7 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
   
   arma::vec result(2, arma::fill::zeros);
   
+  
   if (termination > 1)
   { // thetaP_lo == thetaP_hi or thetaP_hi degeneracy
     if (verbose) 
@@ -557,7 +561,9 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
     }
     permutation = getInterPerm(X, Y, theta_lo, theta_hi, 0);
     arma::uword maxnbbIA = LCRi.col(1).max();
+ 
     arma::mat sampledindsfinal(maxnbbIA, C.n_elem, arma::fill::zeros);
+    
     std::unordered_map<int, std::pair<int, int>> lineKey;
     
     for (arma::uword colnumber = 0; colnumber < C.n_elem; colnumber++)
@@ -583,6 +589,7 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
       
       medians(colnumber) = candidatemedians(medind2(C(colnumber)) - LCRi(C(colnumber), 0) - 1);
     }
+    
     std::nth_element(medians.begin(),
                      medians.begin() +  (medind1 - L.n_elem - 1),
                      medians.end());

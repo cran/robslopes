@@ -28,7 +28,7 @@ Whether or not to print out the progress of the algorithm. Defaults to \code{TRU
 }
 }
 \details{
-Given two input vectors \code{x} and \code{y} of length \eqn{n}, the Theil-Sen estimator is computed as \eqn{med_{ij} (y_i - y_j)/(x_i-x_j)}.  By default, the median in this experssion is the upper median, defined as \eqn{\lfloor (n +1) / 2 \rfloor}. 
+Given two input vectors \code{x} and \code{y} of length \eqn{n}, the Theil-Sen estimator is computed as \eqn{med_{ij} (y_i - y_j)/(x_i-x_j)}.  By default, the median in this experssion is the upper median, defined as \eqn{\lfloor (n +2) / 2 \rfloor}. 
 By changing \code{alpha}, other order statistics of the slopes can be computed.
 }
 \value{
@@ -55,8 +55,8 @@ Jakob Raymaekers
 bruteForceTS <- function(x, y) {
   
   n <- length(x)
-  medind1 <- floor(((n * (n - 1)) / 2 + 1) / 2)
-  medind2 <- floor((n + 1) / 2)
+  medind1 <- floor(((n * (n - 1)) / 2 + 2) / 2)
+  medind2 <- floor((n + 2) / 2)
   temp <-  t(sapply(1:n, function(z)  apply(cbind(x, y), 1 ,
                                                   function(k) (k[2] - y[z]) /
                                                     (k[1] - x[z]))))

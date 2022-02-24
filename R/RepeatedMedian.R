@@ -37,15 +37,15 @@ RepeatedMedian <- function(x, y, alpha = NULL, beta = NULL, verbose = TRUE) {
   
   # Compute correct order statistics
   
-  medind0 <- floor((n + 1) / 2) # upper median(for intercept)
+  medind0 <- floor((n + 2) / 2) # upper median(for intercept)
   
   if (is.null(alpha)) {
-    medind1 <- floor((n + 1) / 2) # upper median
+    medind1 <- floor((n + 2) / 2) # upper median
   } else {
     medind1 <- pmax(1, pmin(n, round(n * alpha))) # upper median
   }
   if (is.null(beta)) {
-    medind2 <- floor((n - nbdups + 1) / 2.0) # vector of upper medians
+    medind2 <- floor((n - nbdups + 2) / 2.0) # vector of upper medians
   } else {
     medind2 <- pmax(1, pmin(n, round((n - nbdups) * beta)))
   }

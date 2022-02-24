@@ -25,9 +25,10 @@ TheilSen <- function(x, y, alpha = NULL, verbose = TRUE) {
   nbdups      <- sum(choose(dupnb[dupnb > 1], 2))
   
   # Compute correct order statistics
-  medind0 <- floor((n + 1) / 2) # upper median (for intercept calculation)
-  if (is.null(alpha)) {
-    medind1  <- floor(((n * (n - 1) / 2) - nbdups + 1) / 2) # upper median
+  medind0 <- floor((n + 2) / 2) # upper median (for intercept calculation)
+ 
+   if (is.null(alpha)) {
+    medind1  <- floor(((n * (n - 1) / 2) - nbdups + 2) / 2) # upper median
   } else {
     medind1  <- max(1, min((n * (n - 1) / 2  - nbdups),
                           round((n * (n - 1) / 2  - nbdups) * alpha)))

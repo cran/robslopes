@@ -15,7 +15,7 @@
 // Count inversions //
 //////////////////////
 
-void merge_TS(arma::uvec& y, arma::uword left, arma::uword middle, arma::uword right, arma::uword& invCount)
+void merge_PB(arma::uvec& y, arma::uword left, arma::uword middle, arma::uword right, arma::uword& invCount)
 {
   // c is number of inversions
   arma::uword i, j, k;
@@ -52,21 +52,21 @@ void merge_TS(arma::uvec& y, arma::uword left, arma::uword middle, arma::uword r
 }
 
 
-void mergeSort_TS(arma::uvec& y, arma::uword left, arma::uword right, arma::uword& invCount)
+void mergeSort_PB(arma::uvec& y, arma::uword left, arma::uword right, arma::uword& invCount)
 {
   // assumes y is an vector of distinct integers 0, 1, ... n-1 without gaps
   // 
   if (left < right)
   {
     arma::uword middle = left + (right - left) / 2;
-    mergeSort_TS(y, left, middle, invCount);
-    mergeSort_TS(y, middle + 1, right, invCount);
-    merge_TS(y, left, middle, right, invCount);
+    mergeSort_PB(y, left, middle, invCount);
+    mergeSort_PB(y, middle + 1, right, invCount);
+    merge_PB(y, left, middle, right, invCount);
   }
 }
 
 
-arma::uword countInversions(arma::uvec y)
+arma::uword countInversions_PB(arma::uvec y)
 {
   // calculate number of inversions in vector y
   // y is assumed to contain distinct integers from 1 to n without gaps
@@ -74,7 +74,7 @@ arma::uword countInversions(arma::uvec y)
   
   int n = y.size();
   arma::uword result = 0;
-  mergeSort_TS(y, 0, n - 1, result);
+  mergeSort_PB(y, 0, n - 1, result);
   return(result);
 }
 
@@ -85,7 +85,7 @@ arma::uword countInversions(arma::uvec y)
 // Sample intersection abscissa //
 //////////////////////////////////
 
-void merge2_TS(arma::uvec& y,arma::uword left, arma::uword middle, arma::uword right,
+void merge2_PB(arma::uvec& y,arma::uword left, arma::uword middle, arma::uword right,
                arma::vec& sampleInds,
                const arma::vec& X, const arma::vec& Y, arma::uword& invCount,
                arma::uword& sampleInds_idx,
@@ -172,7 +172,7 @@ void merge2_TS(arma::uvec& y,arma::uword left, arma::uword middle, arma::uword r
 
 
 
-void mergeSort2_TS(arma::uvec& y, arma::uword left, arma::uword right, arma::vec& sampleInds,
+void mergeSort2_PB(arma::uvec& y, arma::uword left, arma::uword right, arma::vec& sampleInds,
                    const arma::vec& X, const arma::vec& Y, arma::uword& invCount,
                    arma::uword& sampleInds_idx, const arma::uvec& valToline,
                    double theta_lo, double theta_hi)
@@ -182,17 +182,17 @@ void mergeSort2_TS(arma::uvec& y, arma::uword left, arma::uword right, arma::vec
   if (left < right)
   {
     arma::uword middle = left + (right - left) / 2;
-    mergeSort2_TS(y, left, middle, sampleInds, X, Y, invCount,
+    mergeSort2_PB(y, left, middle, sampleInds, X, Y, invCount,
                   sampleInds_idx, valToline, theta_lo, theta_hi);
-    mergeSort2_TS(y, middle + 1, right, sampleInds, X, Y, invCount,
+    mergeSort2_PB(y, middle + 1, right, sampleInds, X, Y, invCount,
                   sampleInds_idx, valToline, theta_lo, theta_hi);
-    merge2_TS(y, left, middle, right, sampleInds, X, Y, invCount,
+    merge2_PB(y, left, middle, right, sampleInds, X, Y, invCount,
               sampleInds_idx, valToline, theta_lo, theta_hi);
   }
 }
 
 
-void sampleIA(arma::uvec y, arma::vec& sampleInds, 
+void sampleIA_PB(arma::uvec y, arma::vec& sampleInds, 
               const arma::vec& X, const arma::vec& Y,
               const arma::uvec valToline,
               double theta_lo, double theta_hi)
@@ -201,102 +201,172 @@ void sampleIA(arma::uvec y, arma::vec& sampleInds,
   int n = y.size();
   arma::uword invCount = 0;
   arma::uword sampleInds_idx = 0;
-  mergeSort2_TS(y, 0, n - 1, sampleInds, X, Y, invCount, 
+  mergeSort2_PB(y, 0, n - 1, sampleInds, X, Y, invCount, 
                 sampleInds_idx, valToline, theta_lo, theta_hi);
 }
 
 
-///////////////
-// Theil Sen //
-///////////////
+////////////////////
+// Passing Bablok //
+////////////////////
 
-// [[Rcpp::export]]
-arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose,
-                        const arma::uword medind0, const arma::uword medind1) {
-  // Computes median slope and intercept
+
+//[[Rcpp::export]]
+arma::vec rcpp_PassingBablok(const arma::vec X,
+                             const arma::vec Y,
+                             const bool verbose,
+                             const arma::uword medind0,
+                             const arma::uword medind1) {
+  // Computes median absolute slope and intercept
   
   // global constants
   const arma::uword n = X.size();
   const arma::uword c = 20; // stop contraction iterations when C<= c * n
-  const arma::uword r = n; // number of random ordinates to sample each iteration
   const arma::uword t = 3; // tuning parameter used in k_lo and k_hi
-  
+  const arma::uword r = n;
   // Initialization
   int termination = 0;
-  double theta_lo = - arma::datum::inf;
+  double theta_lo = 0;
   double theta_hi =  arma::datum::inf;
   double thetaP_lo, thetaP_hi = 0;
-  arma::uword C = (arma::uword)(n * (n - 1) / 2) ; // number of ordinates in (theta_lo,theta_hi]
+  arma::uword C = (arma::uword)(n * (n - 1) / 2);
+  // C = number of absolute ordinates in (theta_lo,theta_hi]
   
   arma::uvec IOcounter(2); // used to check if C goes still goes down
   IOcounter(1) = C;
-  IOcounter(0) = 2 * IOcounter(1) ;
-  arma::uword L = 0; // elements to the left of our interval
-  arma::vec inds;
-  arma::umat permutation(n, 3);
-  
+  IOcounter(0) = 2 * IOcounter(1);
+  arma::umat permutation_l(n, 3);
+  arma::umat permutation_h(n, 3);
   int iterationCounter = 0;
+  
+  // initialize counts
+  arma::uword C_m = 0; // number of absolute slopes in [0,\theta_lo]
+  // should be initiated as sum_j choose(nbtimes_j, 2) where j ranges over Y duplicates
+  arma::uword C_l = 0;// number of slopes in [-\theta_hi,-\theta_lo)
+  arma::uword C_h = 0;// number of slopes in (\theta_lo,\theta_hi]
+  
+  permutation_l = getInterPerm(X, Y, -arma::datum::inf,
+                               0, 1); // open interval
+  C_l = countInversions_PB(permutation_l.col(0));
+  C_m = arma::sum(permutation_l.col(3)) / 2; 
+  C_h = C - C_l - C_m;
+  C   = C_h + C_l;
+  // C will get updated each iteration as C <- C_h + C_l
+
+  if (C_m > medind1) {// degenerate case in which estimated slope is 0
+    termination  = 3;
+  }
+  
+  arma::uword r_l = std::floor((double)r * ((double)C_l) / ((double)C_l + (double)C_h)) ; // number of lower random ordinates to sample each iteration
+  arma::uword r_h = std::ceil((double)r * ((double)C_h) / ((double)C_l + (double)C_h)) ; // number of lower random ordinates to sample each iteration
+  
+  arma::vec inds(r);
+  arma::vec inds_l;
+  arma::vec inds_h;
+  
   
   if (verbose)
   {
     Rcpp::Rcout << "Initialization finished, starting interval contraction." << std::endl;
   }
   
-  while (C > (arma::uword)(c * n)) //switch to brute force otherwise
+  while ((C > (arma::uword)(c * n)) && termination == 0) //switch to brute force otherwise
   {
+    
+    
     // sample ordinates
     
-    // generate a sorted list of n random numbers, with replacement
+    // now we need to generate 2 sorted lists of n random numbers in total
+    // with replacement
     // we avoid arma::randi, since it has maximum_integer as upper bound
-    inds = arma::sort(arma::randu<arma::vec>(r + 1)) * double(C);
-    inds = arma::floor(inds);
-    inds(r) = C + 1; //sentinel value
-    permutation = getInterPerm(X, Y, theta_lo, theta_hi, 0);
+    inds_l = arma::floor(arma::sort(arma::randu<arma::vec>(r_l + 1))* double(C_l));
+    inds_h = arma::floor(arma::sort(arma::randu<arma::vec>(r_h + 1))* double(C_h));
+    inds_l(r_l) = (arma::uword)(n * (n - 1) / 2) + 1; // sentinel value
+    inds_h(r_h) = (arma::uword)(n * (n - 1) / 2) + 1; // sentinel value
     
-    sampleIA(permutation.col(0), inds, X, Y, permutation.col(1), theta_lo, theta_hi);
-    inds = arma::sort(inds);
-    arma::uword k = medind1 - L;
+    permutation_l = getInterPerm(X, -Y, theta_lo, theta_hi, 0);
+    
+    permutation_h = getInterPerm(X, Y, theta_lo, theta_hi, 0);
+    
+    sampleIA_PB(permutation_l.col(0), inds_l, X, -Y,
+             permutation_l.col(1), theta_lo, theta_hi);
+    
+    sampleIA_PB(permutation_h.col(0), inds_h, X, Y,
+             permutation_h.col(1),theta_lo, theta_hi);
+    
+    inds.head(r_l) = inds_l.head(r_l); // remove sentinel values
+    inds.tail(r_h) = inds_h.head(r_h); // remove sentinel values
+    inds = arma::sort(arma::abs(inds)); // we take the absolute value here
+    
+    arma::uword k = medind1 - C_m;
     
     arma::uword k_lo = std::max(1.0, std::floor((double)k * (double)n /
       (double)C - t*std::sqrt(n) / 2.0)) - 1;
     arma::uword k_hi = std::min(n + 0.0, std::ceil((double)k * (double)n /
       (double)C + t*std::sqrt(n) / 2.0)) - 1;
     
+    // candidate bounds:
     thetaP_lo = inds(k_lo);
     thetaP_hi = inds(k_hi);
     
     if (thetaP_lo == thetaP_hi)
-    {
-      termination = 1;
-      Rcpp::Rcout << "Contraction bounds form a singleton." <<
-        " Switching to brute-force enumeration" << std::endl;
-      break;
+    {// Candidate contraction bounds form a singleton.
+      if (theta_lo != thetaP_lo) {
+        thetaP_lo = theta_lo;
+      } else if (theta_hi != thetaP_hi) {
+        thetaP_hi = theta_hi;
+      } else {
+        termination  = 2;
+        break;
+      }
     }
     
     //count the number of IA :
-    // count1 = in (theta_lo, thetaP_lo] = I1
-    // count2 = in (thetaP_lo, thetaP_hi) = I2
-    // count3 = in [thetaP_hi, thetaP_hi] = I3
-    // count4 = in (thetaP_hi, theta_hi] = I4
-    permutation = getInterPerm(X, Y, theta_lo, thetaP_lo, 0);
-    arma::uword count1 = countInversions(permutation.col(0));
-    permutation = getInterPerm(X, Y, thetaP_lo, thetaP_hi, 1); // open interval
-    arma::uword count2 = countInversions(permutation.col(0));
-    arma::uword count3 = arma::sum(permutation.col(3)) / 2; 
-    arma::uword count4 = C - (count1 + count2 + count3);
+    // count1 = in [-\lb', -\lb) \cup (\lb, \lb'] 
+    // count2 = in (-\ub', -\lb') \cup (\lb', \ub')
+    // count3 = in {-\ub', \ub}
+    // count4 = in (-\ub, -\ub') \cup (\ub', \ub)
     
-    if (L + count1 >= medind1)
+    
+    permutation_l = getInterPerm(X, -Y, theta_lo, thetaP_lo, 0);
+    permutation_h = getInterPerm(X, Y, theta_lo, thetaP_lo, 0);
+    arma::uword count1_l = countInversions_PB(permutation_l.col(0));
+    arma::uword count1_h = countInversions_PB(permutation_h.col(0));
+    arma::uword count1 = count1_l + count1_h;
+    
+    permutation_l = getInterPerm(X, -Y, thetaP_lo, thetaP_hi, 1);
+    permutation_h = getInterPerm(X, Y, thetaP_lo, thetaP_hi, 1);
+    arma::uword count2_l = countInversions_PB(permutation_l.col(0));
+    arma::uword count2_h = countInversions_PB(permutation_h.col(0));
+    arma::uword count2 = count2_l + count2_h;
+    
+    arma::uword count3_l = 0;
+    if (thetaP_hi != arma::datum::inf) { 
+      count3_l = arma::sum(permutation_l.col(3)) / 2;
+    }
+    arma::uword count3_h = arma::sum(permutation_h.col(3)) / 2;
+    arma::uword count3 = count3_l + count3_h;
+    
+    
+    arma::uword count4_l = C_l - (count1_l + count2_l + count3_l);
+    arma::uword count4_h = C_h - (count1_h + count2_h + count3_h);
+    // arma::uword count4 = count4_l + count4_h;
+    
+    
+    if (C_m + count1 >= medind1)
     {
       theta_hi = thetaP_lo;
-      C = count1;
+      C_l = count1_l;
+      C_h = count1_h;
     }
-    else if (L + count1 + count2  >= medind1) {
+    else if (C_m + count1 + count2  >= medind1) {
       theta_lo = thetaP_lo;
       theta_hi = thetaP_hi;
-      L = L + count1;
-      C = count2 + count3;
+      C_m = C_m + count1;
+      C_l = count2_l + count3_l;
+      C_h = count2_h + count3_h;
     }
-    else if (L + count1 + count2 + count3 >= medind1)
+    else if (C_m + count1 + count2 + count3 >= medind1)
     {
       termination = 2;
       break;
@@ -304,10 +374,16 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
     else
     {
       theta_lo = thetaP_hi;
-      L = L + count1 + count2 + count3;
-      C = count4;
+      C_m = C_m + count1 + count2 + count3;
+      C_l = count4_l;
+      C_h = count4_h;
     }
-    
+    // updates after updating C_h and C_l
+    C = C_h + C_l;
+    r_l = std::floor((double)r * ((double)C_l) /
+      ((double)C_l + (double)C_h)) ; // number of lower random ordinates to sample each iteration
+    r_h = std::ceil((double)r * ((double)C_h) /
+      ((double)C_l + (double)C_h)) ; // number of upper random ordinates to sample each iteration
     
     // check if number of intersection ordinates in the interval 
     // went down over the last 2 iterations
@@ -330,7 +406,7 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
   
   arma::vec result(2, arma::fill::zeros);
   
-  if (termination > 1)
+  if (termination == 2)
   { // thetaP_lo == thetaP_hi or thetaP_hi degeneracy
     if (verbose) 
     {
@@ -338,6 +414,13 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
         " No brute-force computation needed." << std::endl;
     }
     result(1) = thetaP_hi;
+  }
+  else if (termination == 3) {
+    if (verbose) 
+    {
+      Rcpp::Rcout << "Careful, many zero-slopes in the sample." << std::endl;
+    }
+    result(1) = 0;
   }
   else
   { // no special termination: brute force computation
@@ -348,46 +431,45 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
     
     // generate a sorted list of all remaining IAs.
     // last element C is a "sentinel value"
-    inds = arma::regspace<arma::vec>(0, C);
-    inds(C) = C + 1; // sentinel value
-    permutation = getInterPerm(X, Y, theta_lo, theta_hi, 0);
-    sampleIA(permutation.col(0), inds, X, Y, permutation.col(1), theta_lo, theta_hi);
-    inds = arma::sort(inds);
-    result(1) = inds(medind1 - L - 1);
+    inds_l = arma::regspace<arma::vec>(0, C_l);
+    inds_h = arma::regspace<arma::vec>(0, C_h);
+    inds_l(C_l) = (arma::uword)(n * (n - 1) / 2) + 1;
+    inds_h(C_h) = (arma::uword)(n * (n - 1) / 2) + 1;
+    
+    if (theta_hi == arma::datum::inf) { // do not count duplicates in this case
+      permutation_l = getInterPerm(X, -Y, theta_lo, theta_hi, 1);
+    } else {
+      permutation_l = getInterPerm(X, -Y, theta_lo, theta_hi, 0);
+    }
+    
+    permutation_h = getInterPerm(X, Y, theta_lo, theta_hi, 0);
+    
+    sampleIA_PB(permutation_l.col(0), inds_l, X, -Y,
+             permutation_l.col(1), theta_lo, theta_hi);
+    sampleIA_PB(permutation_h.col(0), inds_h, X, Y,
+             permutation_h.col(1), theta_lo, theta_hi);
+    
+  
+    inds_l = inds_l.head(C_l); // remove sentinel values
+    inds_h = inds_h.head(C_h); // remove sentinel values
+    inds = arma::join_cols(inds_l, inds_h);
+    inds = arma::sort(arma::abs(inds)); // we take the absolute value here
+    
+    result(1) = inds(medind1 - C_m - 1);
   }
   
-  // determine TS intercept
+  // determine PB intercept
   arma::vec residuals = Y - result(1) * X;
   std::nth_element(residuals.begin(),
                    residuals.begin() + medind0 - 1,
                    residuals.end());
   
-  result(0) = residuals(medind0 - 1); // TS intercept
+  result(0) = residuals(medind0 - 1); // PB intercept
   
   if (verbose) 
   {
     Rcpp::Rcout << "Algorithm finished" << std::endl;
   }
-  return(result); 
-}
-
-
-//[[Rcpp::export]]
-arma::uvec rcpp_countIAs(const arma::vec X, const arma::vec Y,
-                        const double theta_lo, const double theta_hi) {
-
-  
-  // global constants
-  const arma::uword n = X.size();
-  arma::umat permutation(n, 3);
-  
-  permutation = getInterPerm(X, Y, theta_lo, theta_hi, 1); // open interval
-  arma::uword count1 = countInversions(permutation.col(0));
-  arma::uword count2 = arma::sum(permutation.col(3)) / 2; 
-  
-  arma::uvec result(2, arma::fill::zeros);
-  result(0) = count1;
-  result(1) = count2;
   return(result); 
 }
 

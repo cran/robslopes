@@ -6,6 +6,37 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
+// countIndividualInversions
+arma::mat countIndividualInversions(arma::vec y);
+RcppExport SEXP _robslopes_countIndividualInversions(SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(countIndividualInversions(y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rcpp_PassingBablok
+arma::vec rcpp_PassingBablok(const arma::vec X, const arma::vec Y, const bool verbose, const arma::uword medind0, const arma::uword medind1);
+RcppExport SEXP _robslopes_rcpp_PassingBablok(SEXP XSEXP, SEXP YSEXP, SEXP verboseSEXP, SEXP medind0SEXP, SEXP medind1SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type medind0(medind0SEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type medind1(medind1SEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_PassingBablok(X, Y, verbose, medind0, medind1));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_TheilSen
 arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose, const arma::uword medind0, const arma::uword medind1);
 RcppExport SEXP _robslopes_rcpp_TheilSen(SEXP XSEXP, SEXP YSEXP, SEXP verboseSEXP, SEXP medind0SEXP, SEXP medind1SEXP) {
@@ -18,6 +49,20 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::uword >::type medind0(medind0SEXP);
     Rcpp::traits::input_parameter< const arma::uword >::type medind1(medind1SEXP);
     rcpp_result_gen = Rcpp::wrap(rcpp_TheilSen(X, Y, verbose, medind0, medind1));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rcpp_countIAs
+arma::uvec rcpp_countIAs(const arma::vec X, const arma::vec Y, const double theta_lo, const double theta_hi);
+RcppExport SEXP _robslopes_rcpp_countIAs(SEXP XSEXP, SEXP YSEXP, SEXP theta_loSEXP, SEXP theta_hiSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const double >::type theta_lo(theta_loSEXP);
+    Rcpp::traits::input_parameter< const double >::type theta_hi(theta_hiSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_countIAs(X, Y, theta_lo, theta_hi));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -39,7 +84,10 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_robslopes_countIndividualInversions", (DL_FUNC) &_robslopes_countIndividualInversions, 1},
+    {"_robslopes_rcpp_PassingBablok", (DL_FUNC) &_robslopes_rcpp_PassingBablok, 5},
     {"_robslopes_rcpp_TheilSen", (DL_FUNC) &_robslopes_rcpp_TheilSen, 5},
+    {"_robslopes_rcpp_countIAs", (DL_FUNC) &_robslopes_rcpp_countIAs, 4},
     {"_robslopes_rcpp_RepeatedMedian", (DL_FUNC) &_robslopes_rcpp_RepeatedMedian, 6},
     {NULL, NULL, 0}
 };

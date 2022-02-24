@@ -33,7 +33,7 @@ Whether or not to print out the progress of the algorithm. Defaults to \code{TRU
 }
 }
 \details{
-Given two input vectors \code{x} and \code{y} of length \eqn{n}, the repeated median is computed as \eqn{med_i med_j (y_i - y_j)/(x_i-x_j)}.  The default "outer'' median is the \eqn{\lfloor (n + 1) / 2 \rfloor} largest element in the ordered median slopes. The inner median, which for each observation is calculated as the median of the slopes connected to this observation, is the \eqn{\lfloor n / 2 \rfloor} largest element in the ordered slopes. By changing \code{alpha} and  \code{beta}, other repeated order statistics of the slopes can be computed.
+Given two input vectors \code{x} and \code{y} of length \eqn{n}, the repeated median is computed as \eqn{med_i med_j (y_i - y_j)/(x_i-x_j)}.  The default "outer'' median is the \eqn{\lfloor (n + 2) / 2 \rfloor} largest element in the ordered median slopes. The inner median, which for each observation is calculated as the median of the slopes connected to this observation, is the \eqn{\lfloor (n +1) / 2 \rfloor} largest element in the ordered slopes. By changing \code{alpha} and  \code{beta}, other repeated order statistics of the slopes can be computed.
 }
 \value{
 A list with elements:
@@ -60,8 +60,8 @@ Jakob Raymaekers
 bruteForceRM <- function(x, y) {
   
   n <- length(x)
-  medind1 <- floor((n+1) / 2)
-  medind2 <- floor(n / 2)
+  medind1 <- floor((n+2) / 2)
+  medind2 <- floor((n+1) / 2)
   temp <-  t(sapply(1:n, function(z)  sort(apply(cbind(x, y), 1 ,
                                                   function(k) (k[2] - y[z]) /
                                                     (k[1] - x[z])))))
