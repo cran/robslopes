@@ -1,4 +1,4 @@
-a212e389453d0601926d1e415df6d1fd *DESCRIPTION
+547d3e2c0193d73d25c8351e79c38983 *DESCRIPTION
 c22600134eb9969b233fa52381dffc36 *NAMESPACE
 59062962d15f56bc79d8cb00cc6fcad3 *R/PassingBablok.R
 4d7dfb153e87b168011585821bf41266 *R/RcppExports.R
@@ -12,7 +12,7 @@ e85867ab3b4bb9cc51867c3c20eb2df1 *man/PassingBablok.Rd
 558a0e7695e6d8f82d4f36a6f2800222 *src/Makevars
 4d7e2e5c6ed342353a0f628b67f8da8f *src/Makevars.win
 9a95ec35010796416f022f6c945db6a8 *src/RcppExports.cpp
-db939e3563565d6ee2158058c6b9fdb5 *src/countIndividualInversions.cpp
+122700b9c934b5f39f8cdafd6f4571bf *src/countIndividualInversions.cpp
 42f482d4d7c8d31c76eaf3762ba50f11 *src/rcpparma_Passing_Bablok.cpp
 e3d12b91a7e93685d453782084cc4f7f *src/rcpparma_Theil_Sen.cpp
 cff8b0aab004b131b98e5ddd680ed336 *src/rcpparma_repeated_median.cpp

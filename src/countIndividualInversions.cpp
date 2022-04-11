@@ -20,7 +20,7 @@ double calcDiff(double x,double y)
   double dRes = x-y;
   double EPS = 1e-12;
   if(dRes == 0) return 0;
-  if(abs(dRes) < EPS * (abs(x) + abs(y)) / 2) return 0;
+  if(std::abs(dRes) < EPS * (std::abs(x) + std::abs(y)) / 2) return 0;
   return dRes;
 }
 
