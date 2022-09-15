@@ -1,5 +1,7 @@
 useDynLib(robslopes, .registration=TRUE)
 importFrom(Rcpp, evalCpp)
+importFrom("stats", ".getXlevels", "is.empty.model", "model.matrix",
+               "model.response", "model.weights", "na.pass")
 ## export all regularly named functions
 ## (but allow for private functions whose name starts with a dot).name <- function(...)
 
@@ -8,3 +10,6 @@ importFrom(Rcpp, evalCpp)
 export(TheilSen)
 export(RepeatedMedian)
 export(PassingBablok)
+export(robslope)
+export(robslope.fit)
+

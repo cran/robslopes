@@ -10,8 +10,8 @@ TheilSen <- function(x, y, alpha = NULL, verbose = TRUE) {
   if (length(naX) > 0 | length(naY) > 0) {
     naInds <- sort(unique(c(naX,naY)))
     if (verbose) {
-      warning(cat("The data contains observations with NA values. The observations ",
-                  naInds, " were removed before computing the Theil-Sen estimator."))
+      cat("The data contains observations with NA values. The observations ",
+                  naInds, " were removed before computing the Theil-Sen estimator.")
     }
     x <- x[-naInds]
     y <- y[-naInds]
