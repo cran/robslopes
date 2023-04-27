@@ -265,7 +265,7 @@ arma::vec rcpp_TheilSen(const arma::vec X, const arma::vec Y, const bool verbose
     thetaP_lo = inds(k_lo);
     thetaP_hi = inds(k_hi);
     
-    if (thetaP_lo == thetaP_hi)
+    if (std::abs(thetaP_hi - thetaP_lo) < 1e-12)
     {
       termination = 1;
       Rcpp::Rcout << "Contraction bounds form a singleton." <<

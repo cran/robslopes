@@ -59,6 +59,8 @@ Bablok, W., Passing, H., Bender, R., Schneider, B. (1988). A general regression 
 regression procedures for method comparison studies in clinical chemistry, Part III.  \emph{Journal of clinical chemistry and clinical biochemistry}, \bold{26},783-790.
 
 Raymaekers J., Dufey F. (2022). Equivariant Passing-Bablok regression in quasilinear time. \href{https://arxiv.org/abs/2202.08060}{(link to open access pdf)}
+
+Raymaekers (2023). "The R Journal: robslopes: Efficient Computation of the (Repeated) Median Slope", The R Journal. \href{https://journal.r-project.org/articles/RJ-2023-012/}{(link to open access pdf)}
 }
 \author{
 Jakob Raymaekers

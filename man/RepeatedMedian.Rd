@@ -45,6 +45,8 @@ A list with elements:
 Siegel, A. F. (1982). Robust regression using repeated medians. \emph{Biometrika}, \bold{69}(1), 242-244.  
 
 Matousek, J., Mount, D. M., & Netanyahu, N. S. (1998). Efficient randomized algorithms for the repeated median line estimator. \emph{Algorithmica}, \bold{20}(2), 136-150.
+
+Raymaekers (2023). "The R Journal: robslopes: Efficient Computation of the (Repeated) Median Slope", The R Journal. \href{https://journal.r-project.org/articles/RJ-2023-012/}{(link to open access pdf)}
 }
 \author{
 Jakob Raymaekers

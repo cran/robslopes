@@ -331,7 +331,7 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
   arma::uvec R;
   arma::uvec C = arma::regspace<arma::uvec>(0, n - 1);
   arma::umat LCRi(n, 3, arma::fill::zeros);
-  LCRi.col(1).fill(n - 1); 
+  LCRi.col(1).fill(n - 1);
   arma::mat sampledinds(P, r, arma::fill::zeros);
   arma::uvec inds(r);
   arma::umat permutation(n, 3);
@@ -438,7 +438,8 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
                      estimatedMedIAs.end());
     thetaP_hi = estimatedMedIAs(k_hi);
     
-    if (thetaP_lo == thetaP_hi)
+    
+    if (std::abs(thetaP_hi - thetaP_lo) < 1e-12)
     {
       termination = 1;
       Rcpp::Rcout << "Contraction bounds form a singleton." <<
@@ -453,13 +454,13 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
     // count2 = in (thetaP_lo, thetaP_hi) = I2
     // count3 = in [thetaP_hi, thetaP_hi] = I3
     // count4 = in (thetaP_hi, theta_hi] = I4
+    
     permutation = getInterPerm(X, Y, theta_lo, thetaP_lo, 0);
     arma::uvec count1 = countInversions_RM(permutation.col(0), permutation.col(2));
     permutation = getInterPerm(X, Y, thetaP_lo, thetaP_hi, 1); // open interval
     arma::uvec count2 = countInversions_RM(permutation.col(0), permutation.col(2));
     arma::uvec count3 = permutation.col(3); 
     arma::uvec count4 = LCRi.col(1) - (count1 + count2 + count3);
-    
     
     // Part e  
     // find lines in C for which the median IA lies in I1, I2, I3 and I4.
@@ -479,7 +480,6 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
     
     if (L.n_elem + inds_I1.n_elem >= medind1)
     {
-      
       theta_hi = thetaP_lo;
       // # L doesn't change here
       R = arma::join_cols(arma::join_cols(arma::join_cols(R,
@@ -531,7 +531,7 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
       break;
     }
     IOcounter(0) = IOcounter(1);
-    IOcounter(1) = IOinInterval;   
+    IOcounter(1) = IOinInterval;  
     iterationCounter++;
   }
   
@@ -561,9 +561,8 @@ arma::vec rcpp_RepeatedMedian(const arma::vec X,
     }
     permutation = getInterPerm(X, Y, theta_lo, theta_hi, 0);
     arma::uword maxnbbIA = LCRi.col(1).max();
- 
     arma::mat sampledindsfinal(maxnbbIA, C.n_elem, arma::fill::zeros);
-    
+ 
     std::unordered_map<int, std::pair<int, int>> lineKey;
     
     for (arma::uword colnumber = 0; colnumber < C.n_elem; colnumber++)

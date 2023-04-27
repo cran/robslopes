@@ -1,0 +1,30 @@
+citHeader("To cite the 'robslopes' package in publications use:")
+
+year = sub('.*(2[[:digit:]]{3})-.*', '\\1', meta$Date, perl = TRUE)
+vers = paste('R package version', meta$Version)
+
+
+bibentry(
+bibtype = "article",
+  author = "Raymaekers Jakob",
+  title = "The R Journal: robslopes: Efficient Computation of the (Repeated) Median Slope",
+  journal = "The R Journal",
+  year = 2023,
+  url = "https://doi.org/10.32614/RJ-2023-012",
+  doi = "10.32614/RJ-2023-012",
+  volume = 14,
+  issue = 4,
+  issn = "2073-4859",
+  pages = "38-49",
+   textVersion = "Raymaekers, \"The R Journal: robslopes: Efficient Computation of the (Repeated) Median Slope\", The R Journal, 2023"
+)
+
+bibentry(
+  bibtype = 'manual',
+  title = paste('robslopes:', meta$Title),
+  author = Filter(function(p) 'aut' %in% p$role, as.person(meta$Author)),
+  year = year,
+  note = vers,
+  url = meta$URL,
+  textVersion = paste('Jakob Raymaekers (', year, '). robslopes: ', meta$Title, '. ', vers, '.', sep = '')
+)

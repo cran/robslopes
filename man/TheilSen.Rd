@@ -44,6 +44,8 @@ analysis (Parts 1-3),  \emph{Ned. Akad. Wetensch. Proc. Ser. A}, \bold{53}, 386-
 Sen, P. K. (1968). Estimates of the regression coefficient based on Kendall's tau.  \emph{Journal of the American statistical association}, \bold{63}(324), 1379-1389.
 
 Dillencourt, M. B., Mount, D. M., & Netanyahu, N. S. (1992). A randomized algorithm for slope selection. \emph{International Journal of Computational Geometry & Applications}, \bold{2}(01), 1-27.
+
+Raymaekers (2023). "The R Journal: robslopes: Efficient Computation of the (Repeated) Median Slope", The R Journal. \href{https://journal.r-project.org/articles/RJ-2023-012/}{(link to open access pdf)}
 }
 \author{
 Jakob Raymaekers
